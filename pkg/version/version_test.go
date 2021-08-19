@@ -15,13 +15,22 @@ func TestToolBox_Info(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "test",
+			name: "test01",
 			fields: fields{
 				Name:    "ToolBox",
 				Version: "v1.0.0",
 			},
 			wantPkgName:    "ToolBox",
 			wantPkgVersion: "v1.0.0",
+		},
+		{
+			name: "test02",
+			fields: fields{
+				Name:    "ToolBox",
+				Version: "v1.0.1",
+			},
+			wantPkgName:    "ToolBox",
+			wantPkgVersion: "v1.0.1",
 		},
 	}
 	for _, tt := range tests {
