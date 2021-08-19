@@ -1,6 +1,8 @@
 package version
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestToolBox_Info(t *testing.T) {
 	type fields struct {
@@ -47,5 +49,16 @@ func TestToolBox_Info(t *testing.T) {
 				t.Errorf("ToolBox.Info() gotPkgVersion = %v, want %v", gotPkgVersion, tt.wantPkgVersion)
 			}
 		})
+	}
+}
+
+func BenchmarkToolBox_Info(b *testing.B) {
+	tb := ToolBox{
+		Name:    "test",
+		Version: "v1.0.0",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tb.Info()
 	}
 }
