@@ -24,8 +24,8 @@ import (
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Generate configuration template",
-	Long:  `Generate configuration templates to help you use this tool`,
+	Short: "快速生成ToolBox配置文件模板案例",
+	Long:  `快速生成ToolBox配置文件模板，你可以根据实际情况更改模板配置进行你想要的操作`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("config called")
 	},

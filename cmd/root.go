@@ -28,13 +28,10 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "ToolBox",
-	Short: "A useful toolbox for your",
-	Long: `A useful toolbox when you will to connect redis 、mysql、mongodb .
-	 For example:
-	 ToolBox [command] [flag]
-	 ToolBox redis
-	 `,
+	Use:     "ToolBox",
+	Short:   "不错的工具箱",
+	Long:    `ToolBox 是一个不错的工具箱，可以提供redis、mysql、mongodb以及rabbitMQ、activeMQ、kafka连接测试.`,
+	Example: `ToolBox [command] [flag]`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
