@@ -19,21 +19,32 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/ybooks240/ToolBox/pkg/tbredis"
 )
 
 // redisCmd represents the redis command
+var tb tbredis.StandaloneRedis
 var redisCmd = &cobra.Command{
 	Use:   "redis",
 	Short: "will to connect redis",
 	Long:  `will to connect redis or test`,
 	Run: func(cmd *cobra.Command, args []string) {
+		for i := range args {
+			fmt.Println(i)
+		}
 		fmt.Println("redis called")
+		// sr := tb.NewRedis()
+		// tbredis.Add(sr)
 	},
 }
 
 func init() {
+
 	rootCmd.AddCommand(redisCmd)
 
+	redisCmd.Flags().StringP("mode", "m", "", "use --mode or -m to choose redis conn mode")
+	redisCmd.Flags().StringVar(&tb.IP, "ip", "", "ip address for redis")
+	redisCmd.Flags().StringVar(&tb.Port, "port", "", "ip address for redis")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
