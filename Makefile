@@ -1,15 +1,6 @@
-CXX = g++
-CXXFLAGS = -Wall -Werror -Wextra -pedantic -std=c++17 -g -fsanitize=address
-LDFLAGS =  -fsanitize=address
+install:
+	@echo "building toolbox ..."
+	@go build -o bin/toolbox
 
-SRC = 
-OBJ = $(SRC:.cc=.o)
-EXEC = main
-
-all: $(EXEC)
-
-$(EXEC): $(OBJ)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJ) $(LBLIBS)
-
-clean:
-	rm -rf $(OBJ) $(EXEC)
+test:
+	@./bin/toolbox $*

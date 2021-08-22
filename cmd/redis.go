@@ -18,8 +18,19 @@ package cmd
 import (
 	"fmt"
 
+	tbRedis "github.com/ybooks240/ToolBox/pkg/redis"
+
 	"github.com/spf13/cobra"
 )
+
+type opt struct {
+	Mode     string
+	Address  []string
+	UserName string
+	Password string
+}
+
+var instance opt
 
 // redisCmd represents the redis command
 var redisCmd = &cobra.Command{
@@ -29,44 +40,42 @@ var redisCmd = &cobra.Command{
 	Example: `ToolBox redis --mode standalone --address <IP>:<PORT> -p <password>
 	ToolBox redis --mode sentinel --address <IP>:<PORT>,<IP>:<PORT>,<IP>:<PORT> -p <password>
 	ToolBox redis --mode cluster --address <IP>:<PORT>,<IP>:<PORT>,<IP>:<PORT> -p <password>`,
-	Aliases:   []string{"standalone", "sentinel", "cluster"},
-	ValidArgs: []string{"mode", "address", "cluster"},
+	// Aliases:   []string{"standalone", "sentinel", "cluster"},
+	ValidArgs: []string{"standalone", "sentinel", "cluster"},
+	// ValidArgs: []string{"mode", "address", "cluster"},
 
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		_, err := cmd.Flags().GetString("mode")
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveError
-		}
-
-		// if
-
-		return args, cobra.ShellCompDirectiveDefault
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		fmt.Println("你选择的redis模式是：", redis.Mode)
-		fmt.Println("将要连接到redis的地址是：", redis.Address)
-		// sr := tb.NewRedis()
-		// tbredis.Add(sr)
+		// fmt.Println("你选择的redis模式是：", instance.Mode)
+		// fmt.Println("将要连接到redis的地址是：", instance.Address)
+
+		switch instance.Mode {
+		case "standalone":
+			fmt.Printf("正在使用%s模式", instance.Mode)
+			tb := tbRedis.StandaloneRedis{
+				Address: instance.Address,
+			}
+			tb.Add("set", "username", "xiaoml")
+		case "sentinel":
+			fmt.Printf("正在使用%s模式,还没适配，敬请期待", instance.Mode)
+		case "cluster":
+			fmt.Printf("正在使用%s模式，还没适配，敬请期待", instance.Mode)
+		default:
+			cmd.Help()
+			fmt.Printf("没有这个模式%s\n", instance.Mode)
+		}
 	},
 }
-
-type opt struct {
-	Mode     string
-	Address  []string
-	UserName string
-	Password string
-}
-
-var redis opt
 
 func init() {
 	rootCmd.AddCommand(redisCmd)
 
-	redisCmd.Flags().StringVarP(&redis.Mode, "mode", "m", "standalone", "指定redis类型")
-	redisCmd.Flags().StringArrayVar(&redis.Address, "address", []string{}, "指定iP列表")
-	redisCmd.Flags().StringVarP(&redis.UserName, "username", "u", "", "指定用户名")
-	redisCmd.Flags().StringVarP(&redis.Password, "password", "p", "", "指定密码")
+	redisCmd.Flags().StringVarP(&instance.Mode, "mode", "m", "standalone", "指定redis类型")
+	// redisCmd.MarkFlagRequired("mode")
+	redisCmd.Flags().StringArrayVar(&instance.Address, "address", []string{}, "指定iP列表")
+	redisCmd.MarkFlagRequired("address")
+	redisCmd.Flags().StringVarP(&instance.UserName, "username", "u", "", "指定用户名")
+	redisCmd.Flags().StringVarP(&instance.Password, "password", "p", "", "指定密码")
 
 	// Here you will define your flags and configuration settings.
 
