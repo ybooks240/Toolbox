@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	tbRedis "github.com/ybooks240/ToolBox/pkg/redis"
 
@@ -28,6 +29,7 @@ type opt struct {
 	Address  []string
 	UserName string
 	Password string
+	DB       int
 }
 
 var instance opt
@@ -46,20 +48,52 @@ var redisCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("你选择的redis模式是：", instance.Mode)
-		// fmt.Println("将要连接到redis的地址是：", instance.Address)
+		if len(args) < 2 {
+			log.Fatal("需要输出参数：get or set")
+			return
+		}
+		if len(args) < 3 {
+			args = append(args, "")
+		}
+		operator := tbRedis.Operator{
+			Opt: args[0],
+			K:   args[1],
+			V:   args[2],
+		}
+
+		fmt.Printf("你选择的redis模式是：%s\n", instance.Mode)
+		fmt.Println(args)
+		fmt.Printf("将要连接到redis的地址是：%s\n", instance.Address)
 
 		switch instance.Mode {
 		case "standalone":
 			fmt.Printf("正在使用%s模式", instance.Mode)
-			tb := tbRedis.StandaloneRedis{
-				Address: instance.Address,
+			sr := tbRedis.StandaloneRedis{
+				Address:  instance.Address,
+				Password: instance.Password,
+				DB:       0,
 			}
-			tb.Add("set", "username", "xiaoml")
+			result, err := sr.SetAndGet(operator)
+			if err != nil {
+				log.Fatal("出现了错误:", err)
+			}
+			fmt.Println(result)
 		case "sentinel":
-			fmt.Printf("正在使用%s模式,还没适配，敬请期待", instance.Mode)
+			sr := tbRedis.SentinelRedis{
+				MasterName: "mymaster",
+				Address:    instance.Address,
+				UserName:   instance.UserName,
+				PassWord:   instance.Password,
+				DB:         instance.DB,
+			}
+			result, err := sr.SetAndGet(operator)
+			if err != nil {
+				log.Fatal("出现了错误:", err)
+
+			}
+			fmt.Println(result)
 		case "cluster":
-			fmt.Printf("正在使用%s模式，还没适配，敬请期待", instance.Mode)
+			log.Fatalf("正在使用%s模式，还没适配，敬请期待", instance.Mode)
 		default:
 			cmd.Help()
 			fmt.Printf("没有这个模式%s\n", instance.Mode)
@@ -76,14 +110,4 @@ func init() {
 	redisCmd.MarkFlagRequired("address")
 	redisCmd.Flags().StringVarP(&instance.UserName, "username", "u", "", "指定用户名")
 	redisCmd.Flags().StringVarP(&instance.Password, "password", "p", "", "指定密码")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// redisCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// redisCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
