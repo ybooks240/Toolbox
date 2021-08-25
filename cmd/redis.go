@@ -63,7 +63,8 @@ var redisCmd = &cobra.Command{
 
 		fmt.Printf("你选择的redis模式是：%s\n", instance.Mode)
 		fmt.Println(args)
-		fmt.Printf("将要连接到redis的地址是：%s\n", instance.Address)
+		fmt.Printf("将要连接到redis的地址是：%v\n", instance.Address)
+		fmt.Printf("将要连接到redis的地址是：%T\n", instance.Address)
 
 		switch instance.Mode {
 		case "standalone":
@@ -89,11 +90,29 @@ var redisCmd = &cobra.Command{
 			result, err := sr.SetAndGet(operator)
 			if err != nil {
 				log.Fatal("出现了错误:", err)
-
 			}
 			fmt.Println(result)
 		case "cluster":
-			log.Fatalf("正在使用%s模式，还没适配，敬请期待", instance.Mode)
+			cr := tbRedis.ClusterRedis{
+				// Address:  instance.Address,
+				Address: []string{
+					"172.16.123.131:50101",
+					"172.16.123.132:50101",
+					"172.16.123.133:50101",
+					"172.16.123.134:50101",
+					"172.16.123.135:50101",
+					"172.16.123.136:50101",
+				},
+				Password: instance.Password,
+				Username: instance.UserName,
+			}
+			//TODO 测试待删除
+			fmt.Printf("将要连接到redis的地址是：%T,%v\n", cr.Address, cr.Address)
+			result, err := cr.SetAndGet(operator)
+			if err != nil {
+				log.Fatal("出现了错误:", err)
+			}
+			fmt.Println(result)
 		default:
 			cmd.Help()
 			fmt.Printf("没有这个模式%s\n", instance.Mode)

@@ -7,7 +7,6 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// 单节点操作
 type tbRedis interface {
 	NewClient() *redis.Client
 	SetAndGet() (result interface{}, err error)
@@ -19,6 +18,7 @@ type Operator struct {
 	V   string
 }
 
+// 单节点操作
 type StandaloneRedis struct {
 	Address  []string
 	Password string
@@ -41,8 +41,8 @@ func (sr StandaloneRedis) SetAndGet(opt Operator) (result interface{}, err error
 		ctx = context.Background()
 	)
 	switch opt.Opt {
-	case "set":
-		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
+	case "get":
+		get := rdb.Do(ctx, opt.Opt, opt.K)
 		if err := get.Err(); err != nil {
 			if err != nil {
 				return nil, err
@@ -51,8 +51,9 @@ func (sr StandaloneRedis) SetAndGet(opt Operator) (result interface{}, err error
 			panic(err)
 		}
 		return get.Val().(string), nil
-	case "get":
-		get := rdb.Do(ctx, opt.Opt, opt.K)
+	case "set":
+
+		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
 		return get.Val().(string), nil
 	default:
 		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
@@ -92,18 +93,6 @@ func (sr SentinelRedis) NewClient() *redis.Client {
 	return rdb
 }
 
-func (sr SentinelRedis) GET() {
-	rdb := sr.NewClient()
-	defer rdb.Close()
-	opt := "set"
-	k := "test2"
-	v := "testtes"
-	var ctx = context.Background()
-	// rdb.Ping(ctx)
-	get := rdb.Do(ctx, opt, k, v)
-	fmt.Println(get.Val())
-}
-
 func (sr SentinelRedis) SetAndGet(opt Operator) (result interface{}, err error) {
 	rdb := sr.NewClient()
 	defer rdb.Close()
@@ -111,8 +100,8 @@ func (sr SentinelRedis) SetAndGet(opt Operator) (result interface{}, err error) 
 		ctx = context.Background()
 	)
 	switch opt.Opt {
-	case "set":
-		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
+	case "get":
+		get := rdb.Do(ctx, opt.Opt, opt.K)
 		if err := get.Err(); err != nil {
 			if err == redis.Nil {
 				return nil, err
@@ -121,21 +110,46 @@ func (sr SentinelRedis) SetAndGet(opt Operator) (result interface{}, err error) 
 			panic(err)
 		}
 		return get.Val().(string), nil
-	case "get":
-		get := rdb.Do(ctx, opt.Opt, opt.K)
+	case "set":
+		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
 		return get.Val().(string), nil
 	default:
 		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
 	}
 }
 
-// // TODO 集群模式
-// func (sr cluster) NewClient1 {
-// 	rdb := redis.NewClusterClient(&redis.ClusterOptions{
-// 		Addrs: []string{":7000", ":7001", ":7002", ":7003", ":7004", ":7005"},
+// TODO 集群模式
+type ClusterRedis struct {
+	Address  []string
+	Password string
+	Username string
+}
 
-// 		// To route commands by latency or randomly, enable one of the following.
-// 		//RouteByLatency: true,
-// 		//RouteRandomly: true,
-// 	})
-// }
+func (cr ClusterRedis) NewClient() *redis.ClusterClient {
+	rdb := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:    cr.Address,
+		Username: cr.Username,
+		Password: cr.Password,
+	})
+	return rdb
+}
+
+func (sr ClusterRedis) SetAndGet(opt Operator) (result interface{}, err error) {
+	rdb := sr.NewClient()
+	defer rdb.Close()
+	var (
+		ctx = context.Background()
+	)
+	switch opt.Opt {
+	case "get":
+		get := rdb.Get(ctx, opt.K)
+		// get.Val()
+		return get.Val(), get.Err()
+	case "set":
+		rdb.Do(ctx, opt.Opt, opt.K, opt.V)
+		// if redis.Nil
+		return rdb.Get(ctx, opt.K), nil
+	default:
+		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
+	}
+}
