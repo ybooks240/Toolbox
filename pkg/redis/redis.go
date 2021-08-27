@@ -43,18 +43,11 @@ func (sr StandaloneRedis) SetAndGet(opt Operator) (result interface{}, err error
 	switch opt.Opt {
 	case "get":
 		get := rdb.Do(ctx, opt.Opt, opt.K)
-		if err := get.Err(); err != nil {
-			if err != nil {
-				return nil, err
-			}
-			//TODO 外面再recover
-			panic(err)
-		}
-		return get.Val().(string), nil
+		return get.Val(), get.Err()
 	case "set":
 
 		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
-		return get.Val().(string), nil
+		return get.Val(), get.Err()
 	default:
 		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
 	}
@@ -71,18 +64,6 @@ type SentinelRedis struct {
 }
 
 func (sr SentinelRedis) NewClient() *redis.Client {
-
-	// rdb := redis.NewFailoverClient(&redis.FailoverOptions{
-	// 	MasterName: "mymaster",
-	// 	SentinelAddrs: []string{
-	// 		"172.16.123.137:26379",
-	// 		"172.16.123.138:26379",
-	// 		"172.16.123.139:26379",
-	// 	},
-	// 	Username: "redis_cncp",
-	// 	Password: "wXGwskVXi2vCBSld",
-	// 	DB:       0,
-	// })
 	rdb := redis.NewFailoverClient(&redis.FailoverOptions{
 		MasterName:    sr.MasterName,
 		SentinelAddrs: sr.Address,
@@ -102,17 +83,10 @@ func (sr SentinelRedis) SetAndGet(opt Operator) (result interface{}, err error) 
 	switch opt.Opt {
 	case "get":
 		get := rdb.Do(ctx, opt.Opt, opt.K)
-		if err := get.Err(); err != nil {
-			if err == redis.Nil {
-				return nil, err
-			}
-			//TODO 外面再recover
-			panic(err)
-		}
-		return get.Val().(string), nil
+		return get.Val(), get.Err()
 	case "set":
 		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
-		return get.Val().(string), nil
+		return get.Val(), get.Err()
 	default:
 		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
 	}
@@ -146,9 +120,9 @@ func (sr ClusterRedis) SetAndGet(opt Operator) (result interface{}, err error) {
 		// get.Val()
 		return get.Val(), get.Err()
 	case "set":
-		rdb.Do(ctx, opt.Opt, opt.K, opt.V)
+		get := rdb.Do(ctx, opt.Opt, opt.K, opt.V)
 		// if redis.Nil
-		return rdb.Get(ctx, opt.K), nil
+		return get.Val(), get.Err()
 	default:
 		return nil, fmt.Errorf("不支持的方法:%s", opt.Opt)
 	}
