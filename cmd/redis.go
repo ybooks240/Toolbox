@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/astaxie/beego/logs"
@@ -23,6 +24,7 @@ import (
 	tbRedis "github.com/ybooks240/ToolBox/pkg/redis"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type opt struct {
@@ -43,6 +45,7 @@ func redisError(err error, k interface{}) {
 }
 
 var instance opt
+var author string
 
 // redisCmd represents the redis command
 var redisCmd = &cobra.Command{
@@ -57,7 +60,9 @@ var redisCmd = &cobra.Command{
 	// ValidArgs: []string{"mode", "address", "cluster"},
 
 	Run: func(cmd *cobra.Command, args []string) {
-
+		test, _ := cmd.Flags().GetString("author")
+		// viper.
+		fmt.Printf("+++++++++测试viper bond ：%v,%v\n", test, viper.Get("database"))
 		if len(args) < 2 {
 			log.Fatal("需要输出参数：get or set")
 			return
@@ -124,7 +129,11 @@ func init() {
 	redisCmd.Flags().StringVarP(&instance.Mode, "mode", "m", "standalone", "指定redis类型")
 	// redisCmd.MarkFlagRequired("mode")
 	redisCmd.Flags().StringArrayVar(&instance.Address, "address", []string{}, "指定iP列表")
-	redisCmd.MarkFlagRequired("address")
+	// TODO 需要打开
+	// redisCmd.MarkFlagRequired("address")
 	redisCmd.Flags().StringVarP(&instance.UserName, "username", "u", "", "指定用户名")
 	redisCmd.Flags().StringVarP(&instance.Password, "password", "p", "", "指定密码")
+	redisCmd.Flags().StringVarP(&author, "author", "a", "", "Author name for copyright attribution")
+	viper.BindPFlag("database", redisCmd.Flags().Lookup("author"))
+	// viper.BindFlagValue("databases", redisCmd.Flags().GetString("auther"))
 }

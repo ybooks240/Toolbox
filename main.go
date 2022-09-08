@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/ybooks240/ToolBox/cmd"
+import (
+	"github.com/ybooks240/ToolBox/cmd"
+)
 
 func main() {
 	cmd.Execute()

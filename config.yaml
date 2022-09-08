@@ -1,3 +1,68 @@
-redis:
-  mode: standalone # sent
+database: mysql
+#  host: 127.0.0.1
+#  user: root
+#  dbname: test
+#  pwd: 123456
+# redis:
+#   - mode: standalone
+#     address: 
+#       - localhost:6379
+#     opt: set
+#     key: username
+#     value: james
 
+#   - mode: standalone
+#     address: localhost:6379
+#     opt: get"
+#     key: username
+#     value: james
+
+#   - mode: "sentinel"
+#     address: 
+#       - 172.16.123.137:26379
+#       - 172.16.123.138:26379
+#       - 172.16.123.139:26379
+#     username: redis_cncp
+#     password: wXGwskVXi2vCBSld
+#     opt: "set"
+#     key: "username"
+#     value: "james"
+
+#   - mode: "sentinel"
+#     address: 
+#       - 172.16.123.137:26379
+#       - 172.16.123.138:26379
+#       - 172.16.123.139:26379
+#     username: redis_cncp
+#     password: wXGwskVXi2vCBSld
+#     opt: "get"
+#     key: "username"
+#     value: "james"
+
+#   - mode: cluster
+#     address: 
+#       - 172.16.123.131:50101 
+#       - 172.16.123.132:50101 
+#       - 172.16.123.133:50101 
+#       - 172.16.123.134:50101 
+#       - 172.16.123.135:50101 
+#       - 172.16.123.136:50101 
+#     username: redis_cncp
+#     password: RMKIOPZAdF9e2s7G
+#     opt: "set"
+#     key: "username"
+#     value: "james"
+
+#   - mode: cluster
+#     address: 
+#       - 172.16.123.131:50101 
+#       - 172.16.123.132:50101 
+#       - 172.16.123.133:50101 
+#       - 172.16.123.134:50101 
+#       - 172.16.123.135:50101 
+#       - 172.16.123.136:50101 
+#     username: redis_cncp
+#     password: RMKIOPZAdF9e2s7G
+#     opt: "get"
+#     key: "username"
+#     value: "james"
